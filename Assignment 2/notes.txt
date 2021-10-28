@@ -1,0 +1,19 @@
+Tyler Stovsky
+705512370
+
+2.1:
+
+1. (expt 3 (expt 4 5))
+2. (+ 1 (logb (expt 3 (expt 4 5))))
+	1624 bits
+3. The first C-h k prompts you for a function you want described, and then doing C-h k chooses that you want the describe function itself to be described.
+4. C-h k M-SPC describes the function just-one-space.  It deletes all the spaces and tabs around the cursor, leaving just one space.  There is an optional argument you can use to leave N spaces.  If you make N negative, it will delete newlines as well.
+5. The general function is cycle-spacing.
+
+Shuf.py notes:
+
+I ended up only using structural pattern matching when interpreting the head count.  I used it to see if the head count was the empty string (i.e. not specified/set) or non-empty, where I then could verify if it was a valid integer and use it in my shuffle function and my repeat function.  I felt as if strings were very easy to use with structural pattern matching.
+
+I decided not to use structural pattern matching for parsing my arguments.  Using the parse_args() function returns a weird class that I wasn’t sure how to mess with using structural pattern matching, but I could easily interpret it using if then else statements. After I set a destination, each argument can be interpreted as a bool, since it’s either set or its not set.  Interpreting the arguments as bools seemed a lot easier to do without structural pattern matching.
+
+When I run my program with Python 2, it doesn’t work because structural pattern matching wasn’t added until Python 3.10.
