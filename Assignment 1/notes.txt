@@ -1,0 +1,144 @@
+Tyler Stovsky
+705512370
+
+1. $which mv
+$which sh
+Mv: /usr/local/cs/bin/mv 
+Sh: /usr/bin/sh
+
+2. $find ?r:
+./ar - command to create, modify, and extract from archives
+./pr - command to convert text files for printing
+./tr - command to translate or delete characters
+
+3. $cd /usr/local/cs/bin/
+$ls -l emacs
+$cd ../emacs-27.2/bin/emacs-27.2
+$ls -l emacs-27.2
+$pwd emacs-27.2
+
+The file executed is /usr/local/cs/emacs-27.2/bin/emacs-27.2
+
+4. $/usr/bin/gcc -v
+/usr/bin/gcc is version 8.4.1
+$gcc -v
+Gcc is version 11.2.0
+
+They are different programs because the version of gcc at /usr/bin/gcc hasn’t been updated, while the plain gcc program has been.  This may be because the plain gcc version is used more frequently.
+
+5. $man chmod
+
+u+sx,o-w means that the user who owns the file can set user or group ID on execution and can execute the file.  Other users not in the file’s group are removed of write permissions.
+
+6. $man find
+$find /usr/local/cs -type d -mtime -28
+
+/usr/local/cs
+/usr/local/cs/.del
+/usr/local/cs/.del/automake-1.16.4
+/usr/local/cs/bin
+/usr/local/cs/gdb-11.1
+/usr/local/cs/gdb-11.1/include
+/usr/local/cs/gdb-11.1/include/sim
+/usr/local/cs/gdb-11.1/include/gdb
+/usr/local/cs/gdb-11.1/lib
+/usr/local/cs/gdb-11.1/bin
+/usr/local/cs/gdb-11.1/share
+/usr/local/cs/gdb-11.1/share/info
+/usr/local/cs/gdb-11.1/share/man
+/usr/local/cs/gdb-11.1/share/man/man5
+/usr/local/cs/gdb-11.1/share/man/man1
+/usr/local/cs/gdb-11.1/share/gdb
+/usr/local/cs/gdb-11.1/share/gdb/system-gdbinit
+/usr/local/cs/gdb-11.1/share/gdb/syscalls
+/usr/local/cs/automake-1.16.5
+/usr/local/cs/automake-1.16.5/share
+/usr/local/cs/automake-1.16.5/share/doc
+/usr/local/cs/automake-1.16.5/share/doc/automake
+/usr/local/cs/automake-1.16.5/share/automake-1.16
+/usr/local/cs/automake-1.16.5/share/automake-1.16/am
+/usr/local/cs/automake-1.16.5/share/automake-1.16/Automake
+/usr/local/cs/automake-1.16.5/share/aclocal-1.16
+/usr/local/cs/automake-1.16.5/share/aclocal-1.16/internal
+/usr/local/cs/automake-1.16.5/share/aclocal
+/usr/local/cs/automake-1.16.5/share/info
+/usr/local/cs/automake-1.16.5/share/man
+/usr/local/cs/automake-1.16.5/share/man/man1
+/usr/local/cs/automake-1.16.5/bin
+/usr/local/cs/share/info
+/usr/local/cs/share/man/man1
+/usr/local/cs/share/man/man5
+/usr/local/cs/src/automake
+/usr/local/cs/src/automake/RCS
+/usr/local/cs/src/gdb
+/usr/local/cs/src/gdb/RCS
+
+39 in total.
+
+7. $which find
+$cd /usr/bin
+$find -type l
+$man wc
+$find -type l | wc -l
+
+318 are symbolic links.
+
+8. $cd /usr/lib64
+$man ls
+$ls -t
+
+The oldest regular file is libcrypt.so.1.1.0
+
+9. C-h a transpose
+
+transpose-chars               C-t
+   Interchange characters around point, moving forward one character.
+transpose-lines               C-x C-t
+   Exchange current line and previous line, leaving point after both.
+transpose-paragraphs          M-x ... RET
+   Interchange the current paragraph with the next one.
+transpose-regions             M-x ... RET
+   Transpose region STARTR1 to ENDR1 with STARTR2 to ENDR2.
+transpose-sentences           M-x ... RET
+   Interchange the current sentence with the next one.
+transpose-sexps               C-M-t
+   Like \[transpose-chars] (`transpose-chars'), but applies to sexps.
+transpose-words               M-t
+   Interchange words around point, leaving point at end of them.
+
+
+10. C-h f yank
+
+This function pastes the last stretch of copied/killed text. You can invoke it with C-y.
+
+11. C-h f dired
+$ls -l /usr/bin
+
+One difference is that with the Emacs dired command, I can interact with each directory that is listed, while the ls -l command is just a list that you can’t interact with.  Another difference is that the dired command shows a few more directories than ls -l, which means that the ls -l hides some directories that dired does not.
+
+12. $man ps 
+$ps -C xagt
+
+Using this, I found that there were processes running.
+    PID TTY          TIME CMD
+   1128 ?        00:07:53 xagt - This one has been running for 7 minutes and 53 seconds.
+   7763 ?        1-00:37:05 xagt - This one has been running for 1 day, 37 minutes, and 5 seconds.
+   7764 ?        00:44:11 xagt - This one has been running for 44 minutes and 11 seconds.
+
+$ps aux -C xagt
+
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+
+root        1128  0.0  0.1 1123568 72548 ?       SLsl Aug31   7:53 /opt/fireeye/bin/xagt -M DAEMON
+	-This process has a cpu usage of 0.0%.
+
+root        7763  3.0  8.8 11978172 5804696 ?    SLl  Aug31 1477:09 /opt/fireeye/bin/xagt --mode Eventor --iofd 3 --cmname
+	-This process has a cpu usage of 3.0%.
+
+root        7764  0.0  0.1 452516 80788 ?        SLl  Aug31  44:12 /opt/fireeye/bin/xagt --mode ProcessTracker --iofd 3 --
+	-This process has a cpu usage of 0.0%.
+
+
+
+
+
