@@ -1,0 +1,175 @@
+Tyler Stovsky
+705512370
+
+The first thing I changed was that I added prev_index to the constructor, so I can keep track of the previous square that was clicked.  This allows me to update the game according to what the player did last.
+Code:
+    constructor(props) {
+    super(props);
+    this.state = {
+        history: [
+        {
+            squares: Array(9).fill(null)
+        }
+        ],
+        stepNumber: 0,
+        xIsNext: true,
+        prev_index: -1,
+    };
+    }
+
+Then I created a function called is_adjacent which checks if the current index clicked is adjacent to the previous index clicked.
+Code:
+    function is_adjacent(curr_i, last_i) {
+
+        switch (curr_i) {
+            case 0:
+                return last_i === 1 || last_i === 3 || last_i === 4;
+            case 1:
+                return last_i === 0 || last_i === 2 || last_i === 4 || last_i === 3 || last_i === 5;
+            case 2:
+                return last_i === 1 || last_i === 4 || last_i === 5;
+            case 3:
+                return last_i === 0 || last_i === 1 || last_i === 4 || last_i === 6 || last_i === 7;
+            case 4:
+                return true;
+            case 5:
+                return last_i === 1 || last_i === 2 || last_i === 4 || last_i === 7 || last_i === 8;
+            case 6:
+                return last_i === 3 || last_i === 4 || last_i === 7;
+            case 7:
+                return last_i === 3 || last_i === 4 || last_i === 5 || last_i === 6 || last_i === 8;
+            case 8:
+                return last_i === 4 || last_i === 5 || last_i === 7;
+            default:
+                return;
+        }
+
+    }
+
+Created a function set_state since I have to change the state of the game many different times.
+Code:
+    var set_state = (same_turn) => {
+                if (same_turn) {
+                    this.setState({
+                        history: history.concat([
+                            {
+                                squares: squares
+                            }
+                        ]),
+                        stepNumber: history.length,
+                        xIsNext: this.state.xIsNext,
+                        prev_index: i
+                    });
+                }
+                else {
+                    this.setState({
+                        history: history.concat([
+                            {
+                                squares: squares
+                            }
+                        ]),
+                        stepNumber: history.length,
+                        xIsNext: !this.state.xIsNext,
+                        prev_index: i
+                    });
+                }
+                return;
+            }
+
+When the stepNumber is >= 6, that's when the new rules get added.  So, I added code that looks like this.
+Code:
+if (this.state.stepNumber >= 6) {
+// code to be described later...
+}
+    else {
+        if (squares[i]) {
+            return;
+        }
+        squares[i] = this.state.xIsNext ? "X" : "O";
+        set_state(false);
+    }
+The code in the else statement is the exact same as what we did for tic tac toe, since its the same game for the first 6 turns.
+
+*The rest of the code described is inside the if (this.state.stepNumber >= 6) block.
+
+Created a check to see if the square clicked is the same a who's turn it is.  This is useful so you can only move a piece that is your own turn.
+Code:
+var is_same = (x) => squares[x] === (this.state.xIsNext ? "X" : "O");
+
+There are two options after we enter the second phase of the game.  Either we are clicking a piece that we want to move, or the piece has been clicked and we want to move it.
+
+To check if we are waiting for a piece to be clicked so we can move it, we simply have to check if the square of the previous index is occupied, since this means a piece was just placed.
+Code:
+    if (squares[prev_index]) {
+    // code here
+    }
+
+Once here, we just have to perform some checks to make sure we can't remove pieces we aren't supposed to, and then remove a valid piece and update the state of the game. Notice xIsNext does not change, this is because when clicking a piece to move it, we need to place it back again.
+Code:
+    if (!is_same(i) || !squares[i]) {
+        return;
+    }
+
+    squares[i] = null;
+    set_state(true);
+
+    }
+
+Otherwise, a piece has been clicked that we want to move, so let's move it and make sure it's a valid place to be moved to.  
+
+If the same place is clicked, all we want to do is replace it but don't switch the turns.
+Code:
+    if (i === prev_index) {
+        squares[i] = this.state.xIsNext ? "X" : "O";
+        set_state(true);
+        return;
+    }
+
+If the square clicked is occupied or it's not adjacent, then it's an invalid place to put the piece.
+Code:
+    if (!is_adjacent(i, prev_index) || squares[i]) {
+        return;
+    } 
+
+Now we need to check the middle square rule.  If the middle square is occupied with a piece of the same turn, then we need to make sure that we can win when we move a piece.  If we can't win then it's an invalid place to put a piece.  Notice that if we are moving the middle piece, it just follows the same rules as moving any other piece so this check satisfies the game rule completely.
+Code:
+    if (is_same(4)) {
+        
+        squares[i] = this.state.xIsNext ? "X" : "O";
+        if (!calculateWinner(squares)) {
+            squares[i] = null;
+            return;
+        }
+    }
+
+We finally have satisfied the rules, so all we have to do is place the piece and switch turns.
+Code:
+    squares[i] = this.state.xIsNext ? "X" : "O";
+    set_state(false);
+
+Npm pack --dry-run output:
+
+npm notice 
+npm notice 📦  chorus-lapilli@0.1.0
+npm notice === Tarball Contents === 
+npm notice 739B  src/index.css       
+npm notice 1.7kB public/index.html   
+npm notice 3.9kB public/favicon.ico  
+npm notice 7.3kB src/index.js        
+npm notice 492B  public/manifest.json
+npm notice 817B  package.json        
+npm notice 3.4kB README.md           
+npm notice 5.3kB public/logo192.png  
+npm notice 9.7kB public/logo512.png  
+npm notice 67B   public/robots.txt   
+npm notice === Tarball Details === 
+npm notice name:          chorus-lapilli                          
+npm notice version:       0.1.0                                   
+npm notice filename:      chorus-lapilli-0.1.0.tgz                
+npm notice package size:  24.0 kB                                 
+npm notice unpacked size: 33.4 kB                                 
+npm notice shasum:        423a66305b6e5f66a86f60e62c8fe845c531ec47
+npm notice integrity:     sha512-45EvMaHWGpI0u[...]AS5oC5Jd4gEUQ==
+npm notice total files:   10                                      
+npm notice 
+chorus-lapilli-0.1.0.tgz

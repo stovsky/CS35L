@@ -1,0 +1,235 @@
+Tyler Stovsky
+705512370
+
+To start, I clicked on the link https://codepen.io/gaearon/pen/oWWQNa?editors=0010 from the tutorial webpage in order to retrieve my starter code and start working on the project in my browser.
+
+In the Board component, I wrote code to pass a prop named value into the Square.  I did this in the renderSquare method.
+Code:
+Return <Square value={i} />
+
+I edited the Square to then show this value I passed into it through the render method.
+Code:
+<button className="square"> {this.props.value} </button>
+
+Changed the button tag to test the onClick functionality.
+Code:
+<button className="square" onClick={function() { console.log('click'); }}>
+   {this.props.value}
+</button>
+
+Then I added a constructor so I can initialize a state.
+Code:
+constructor(props) {
+    super(props);
+    this.state = {
+      value: null,
+    };
+  }
+
+I updated Square so it can display the current state's value.
+Code:
+<button className="square"
+ onClick={() => this.setState({value: 'X'})}>
+  {this.state.value}
+</button>
+
+I then downloaded React DevTools, clicked Inspect on the board, and inspected the component tree.
+
+Added a constructor to the Board.
+Code:
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),
+    };
+  }
+
+Changed the renderSquare return.
+Code:
+return <Square value={this.state.squares[i]} />;
+
+Edited the renderSquare return again so the Square can update the boards state.
+Code:
+    return (
+      <Square
+        value={this.state.squares[i]}
+        onClick={() => this.handleClick(i)}
+      />
+    );
+
+Change the Square component again, since Square no longer keeps track of the game's state.  We are now passing the value and a function onClick() from Board to square.
+Code:
+<button
+        className="square"
+        onClick={() => this.props.onClick()}
+      >
+        {this.props.value}
+      </button>
+
+Create the handleClick function.
+Code:
+  handleClick(i) {
+    const squares = this.state.squares.slice();
+    squares[i] = 'X';
+    this.setState({squares: squares});
+  }
+
+Change Square to a function component, since it only contains a render method and doesn't gave its own state.
+Code:
+function Square(props) {
+  return (
+    <button className="square" onClick={props.onClick}>
+      {props.value}
+    </button>
+  );
+}
+
+Add a bool to the constructor so we can take turns, and update handleClick accordingly.
+Code:
+  handleClick(i) {
+    const squares = this.state.squares.slice();
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+      squares: squares,
+      xIsNext: !this.state.xIsNext,
+    });
+  }
+
+Create the winner function:
+Code:
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
+}
+
+Exit out of the handleClick function if you click the same square or if there's a winner:
+Code:
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
+
+Create a constructor for Game so we can lift state up again.
+Code:
+  constructor(props) {
+    super(props);
+    this.state = {
+      history: [{
+        squares: Array(9).fill(null),
+      }],
+      xIsNext: true,
+    };
+  }
+
+Delete the constructor in Board since it no longer handles states and transform the rest.
+Code:
+      <Square
+        value={this.props.squares[i]}
+        onClick={() => this.props.onClick(i)}
+      />
+
+Update the render function in Board.
+Code:
+  render() {
+    const history = this.state.history;
+    const current = history[history.length - 1];
+    const winner = calculateWinner(current.squares);
+    let status;
+    if (winner) {
+      status = 'Winner: ' + winner;
+    } else {
+      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+    }
+
+    return (
+      <div className="game">
+        <div className="game-board">
+          <Board
+            squares={current.squares}
+            onClick={(i) => this.handleClick(i)}
+          />
+        </div>
+        <div className="game-info">
+          <div>{status}</div>
+          <ol>{/* TODO */}</ol>
+        </div>
+      </div>
+    );
+  }
+
+Move and update the handleClick function to Game.
+Code:
+  handleClick(i) {
+    const history = this.state.history;
+    const current = history[history.length - 1];
+    const squares = current.squares.slice();
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+      history: history.concat([{
+        squares: squares,
+      }]),
+      xIsNext: !this.state.xIsNext,
+    });
+  }
+
+Represent the history as button's on the screen.
+Code:
+    const moves = history.map((step, move) => {
+      const desc = move ?
+        'Go to move #' + move :
+        'Go to game start';
+      return (
+        <li>
+          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        </li>
+      );
+    });
+
+Add a key to the list so we can differentiate components from their siblings.
+Code:
+<li key={move}>
+
+Implement jumpTo.
+Code:
+  jumpTo(step) {
+    this.setState({
+      stepNumber: step,
+      xIsNext: (step % 2) === 0,
+    });
+  }
+
+Adjust handleClick.
+Code:
+  handleClick(i) {
+    const history = this.state.history.slice(0, this.state.stepNumber + 1);
+    const current = history[history.length - 1];
+    const squares = current.squares.slice();
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+      history: history.concat([{
+        squares: squares
+      }]),
+      stepNumber: history.length,
+      xIsNext: !this.state.xIsNext,
+    });
+  }
