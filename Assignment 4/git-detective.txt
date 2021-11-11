@@ -1,0 +1,58 @@
+Tyler Stovsky
+705512370
+
+I used the command
+$ git log --grep="segfaulted"
+From here I found the log:
+
+commit 872c9e67ecf9ecb525e320e46171027c7742e76a
+Merge: ae9e6ef35e 8174627b3d
+Author: Junio C Hamano <gitster@pobox.com>
+Date:   Tue Oct 12 13:51:40 2021 -0700
+
+    Merge branch 'dd/diff-files-unmerged-fix' into maint
+    
+    "git diff --relative" segfaulted and/or produced incorrect result
+    when there are unmerged paths.
+    
+    * dd/diff-files-unmerged-fix:
+      diff-lib: ignore paths that are outside $cwd if --relative asked
+
+From here I checked the parent commit 8174627b3d to see what was actually merged.  I checked the other parent and scrolled through both the logs, but this seemed like the only relevant commit.
+$ git log 8174627b3d
+I found this:
+commit 8174627b3d32dc80cb477b3fa46971955f26c6b2
+Author: Đoàn Trần Công Danh <congdanhqx@gmail.com>
+Date:   Sun Aug 22 15:49:08 2021 +0700
+
+    diff-lib: ignore paths that are outside $cwd if --relative asked
+    
+    For diff family commands, we can tell them to exclude changes outside
+    of some directories if --relative is requested.
+    
+    In diff_unmerge(), NULL will be returned if the requested path is
+    outside of the interesting directories, thus we'll run into NULL
+    pointer dereference in run_diff_files when trying to dereference
+    its return value.
+    
+    Checking for return value of diff_unmerge before dereferencing
+    is not sufficient, though. Since, diff engine will try to work on such
+    pathspec later.
+    
+    Let's not run diff on those unintesting entries, instead.
+    As a side effect, by skipping like that, we can save some CPU cycles.
+    
+    Reported-by: Thomas De Zeeuw <thomas@slight.dev>
+    Tested-by: Carlo Arenas <carenas@gmail.com>
+    Signed-off-by: Đoàn Trần Công Danh <congdanhqx@gmail.com>
+    Signed-off-by: Junio C Hamano <gitster@pobox.com>
+
+From here, I see that the change was authored by Đoàn Trần Công Danh.  I wanted to go a little deeper, and noticed the mention of a file diff-lib.  I tried $ git blame diff-lib but nothing came up, so I simply did $ ls and found that the file is diff-lib.c.  So, I typed
+$ git blame diff-lib.c | grep "Đoàn Trần Công Danh"
+And found these lines:
+8174627b3d3 diff-lib.c (Đoàn Trần Công Danh     2021-08-22 15:49:08 +0700 120) 		if (revs->diffopt.prefix &&
+8174627b3d3 diff-lib.c (Đoàn Trần Công Danh     2021-08-22 15:49:08 +0700 121) 		    strncmp(ce->name, revs->diffopt.prefix, revs->diffopt.prefix_length))
+8174627b3d3 diff-lib.c (Đoàn Trần Công Danh     2021-08-22 15:49:08 +0700 122) 			continue;
+8174627b3d3 diff-lib.c (Đoàn Trần Công Danh     2021-08-22 15:49:08 +0700 123) 
+
+This seems to be the code that fixed the issue.

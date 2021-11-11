@@ -1,0 +1,32 @@
+Tyler Stovsky
+705512370
+
+
+To do this, I simply used the command below so I could find when this string first came to be:
+$ git log -S "Even newspaper reports present contradictory information."
+
+This command outputted
+commit c12b432741eed9a422fbf99fa27af6e7a941d88b refs/tags/2012e
+Author: Arthur David Olson <ado@elsie>
+Date:   Thu Dec 21 11:43:42 1995 -0500
+
+    Eggert changes
+    
+    SCCS-file: northamerica
+    SCCS-SID: 7.20
+
+I noticed that Arthur David Olson authored this change on December 21, 1995.
+From here, I wanted to see what actually happened in the commit, so I did:
+$ git show c12b432741eed9a422fbf99fa27af6e7a941d88b
+
+In this output, I found these lines:
++# From Paul Eggert (1995-12-19):
++# Indiana generally observes either EST all year, or CST/CDT,
++# but areas near Cincinnati and Louisville use those cities' timekeeping
++# and in 1969 and 1970 the whole state observed daylight time;
++# and there are other exceptions as noted below.
++# Shanks partitions Indiana into 345 regions, each with its own time history,
++# and writes ``Even newspaper reports present contradictory information.''
++# Fortunately, most of the complexity occurred before our cutoff date of 1970.
+
+From this output, it is clear that this sentence was added into the northamerica file by Paul Eggert on December 19, 1995.

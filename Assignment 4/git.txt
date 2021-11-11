@@ -1,0 +1,16 @@
+Tyler Stovsky
+705512370
+
+Differences between Git's cloned repository and ~eggert/src/github/git.
+
+In ~eggert/src/github/git, I typed $ git branch and got this output:
+  maint
+* master
+  next
+  seen
+  todo
+
+I did the same in the cloned repository and found:
+* master
+
+As you can see, ~eggert contains extra branches such as maint, next, seen, and todo, along with the master branch contained in both.  This is because Eggert has checked out branches that I have not checked out yet in the freshly cloned repository.

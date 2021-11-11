@@ -1,0 +1,15 @@
+#!/bin/sh
+
+cat > input
+
+timezones=($(grep "^Date:" input | grep -Eo "((\-.*)|(0000)|(\+.*))$" | sort -gu))
+
+
+for tz in ${timezones[@]}
+do
+    
+    echo $tz $(grep "^Date:" input | grep -c "\\${tz}$")
+
+done
+
+
