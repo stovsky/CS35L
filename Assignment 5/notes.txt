@@ -1,0 +1,64 @@
+Tyler Stovsky
+705512370
+
+After cloning the repository, I typed $ git status and found that the files I needed were deleted.
+So, I did $ git restore <file> for each file that was missing so I could retrieve them.
+
+Next, I took a look at randall.c and Makefile and tried to make sense of them.  In randall.c, I noticed that the only thing you can do so far is just ask for a number of bytes to be generated.  I also looked at Makefile, and saw the instructions for how randall should be built.  There was also other targets for submitting and one to clean.
+
+Next, I added "make check" to the Makefile.  To do this, I started by creating a shell script called "tests" which will contain all my future tests.  I started by adding a simple test that makes sure the output is the correct length.  I did this with the "wc -c" command which counts the number of bytes.  Then, when running "make check", I simply run the shell script I created.  I added two prerequisites, randall and tests so I can ensure they are created before I run the test.
+
+The next thing I did was move the hardware implementation to rand64-hw.c, and I removed all the "static" keywords so the functions can be used in other files.  Then I copied the #include statements and deleted the ones that weren't being used.  Then, I moved all the function declarations to rand64-hw.h, and moved the struct called "cpuid" to the header file as well.  I also added header guards to the header file.  Finally, I added #include "./rand64-hw.h" to rand64-hw.c
+
+For rand64-sw.c, I did a very similar thing to the hardware implementation.  I moved the software implementation, removed the "static" keywords, and copied and removed #include statements.  I moved all the function declarations to rand64-sw.h, added header guards to the header file, and then added #include "./rand64-sw.h" to rand64-sw.c
+
+Then I moved the "writebytes" function to output.c, and again I removed all the "static" keywords.  Then I imported the correct libraries, and moved all the function declarations into output.h.  I added header guards to the header file.  Then I added #include "./output.h" to output.c
+
+Before adding options.c and options.h, I wanted to check and make sure my work worked correctly.  I deleted all the #include statements except for #include <errno.h>, and then I imported all my header files.  I tried running "make randall", but sadly it didn't work.  I realized I needed to edit Makefile so I could compile all my c files, so I made a change to the randall target's prerequisites to *.c so it would check for all .c files, not just randall.c.  Then, in the recipe I cahnged $@.c to *.c so it would actually compile all the .c files. Finally, it worked.
+
+To complete the modularization, I copied the if-statement in the main function of randall.c into options.c.  I turned it into a function called checkArguments which, for now, takes it no input and returns void.  I imported the correct libraries, and then added its declaration to output.h.  Then I added header guards, and added #include "./options.h" to options.c.  Finally, I replaced the if-statement in randall.c with the function I created.  I replaced the if-statement in randall.c with my function call, imported my new header file, and hoped for the best.  As expected, there were many errors.
+
+I quickly realized I was using local variables in a function that uses no arguments, so I went back to the drawing board.  I passed in the required arguments, and came up with this function declaration:
+void checkArguments(char arg_c, char** arg_v, bool* val, long long* n_bytes);
+Now, I am passing in argc and argv from main, as well as the valid bool and the number of bytes.  It is important to notice here that the valid bool and the number of bytes are passed in with their addresses.  This is because you can't pass by reference in C, and I need the changes made to them to reflect outside the function.
+I tried this function call in main in randall.c, and it works!
+
+Now that I had everything copied over, it was time to make it my own.  I started by changing the options.c and options.h files.  Since in  the assignment it asks me to add an input option first, thats what I tackled first.  I started by adding a struct into options.h.  This struct, called options, for now just has two things.  A string called input and a string called source.  The input string keeps track of what option the user inputted (rdrand, mrand48_r, /F, or none).  The source string only keeps track of what file the user inputted if they use the /F option.
+After I created this struct, I updated my function declaration to be:
+void checkArguments(char arg_c, char** arg_v, bool* val, long long* n_bytes, struct options* options);
+Again, I had to pass in the address because you can't pass by reference in C.
+Then, after looking through the getopt documentation, I was able to create the case where the user types "-i input".  If they don't type -i, the program still works as expected.
+
+Next, I started to look at the output option.  This was pretty similar to the input option, so it wasn't too bad to implement.  First I added to my struct options, where I added a bool called N and an unsigned int called bsize.  The bool N is initialized to false, and changes to true if we use the '-o N' option.  The unsigned int bsize keeps track of the block size when using the '-o N' option.  If the user puts "stdio" after '-o' then the program just runs as if no options were set.  Otherwise, it will assume you are typing in a number and error check that you actually did.
+
+I then changed my checkArguments function to return an integer.  This way I can diplay different error messages depending on which input is invalid.  I implemented the error checking and added messages in randall.c.
+
+After getting all this set up, I was ready to add my hardware and software implementations.  The first thing I did was actually make use of my option parsing in randall.c.  I added a series of if-then-else statements that will run either the hardware-based implementation or the software-based one depending on the options the user inputted.
+
+Then, I started on my actual implementations.  The first thing I added was a simple function that will change the source if the user uses '-i /F'. I also added some basic framework for my mrand48_r implementation.
+
+I created two new files, mrand48r.c and mrand48r.h.  Here I created my implementation for mrand48_r.  The function mrand48_r returns a 32 bit integer, but I wanted a 64 bit integer.  To fix this, I did mrand48_r on two separate integers, then slid one over 32 bits, used a bit mask on the other, then used OR to combine them into a 64 bit integer.
+
+Next, I implemented the '-o N' option.  I did this in my main function in randall.c.  This took a long time to figure out how to implement, but after a lot of debugging I finally figured it out.
+
+Then, I added error checking for a lot of different edge cases that I missed.
+
+Finally, I added a bunch of tests to my testing script.
+
+time ./randall 133562368 >/dev/null:
+
+real	0m1.182s
+user	0m1.160s
+sys	0m0.015s
+
+time ./randall 133562368 | cat >/dev/null:
+
+real	0m1.349s
+user	0m1.207s
+sys	0m0.259s
+
+time ./randall 133562368 >rand.data:
+
+real	0m2.870s
+user	0m1.261s
+sys	0m0.126s
